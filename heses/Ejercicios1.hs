@@ -111,3 +111,30 @@
     
 --     -- i) let x = elem 1 [ ] in if x then 1 else [ ]
 -- Error de tipado, lo devuelto por el if y el else debe ser del mismo tipo
+
+
+-- 5. Indica razonadamente cuales de los siguientes tipos son equivalentes:
+--      τ1 = (a ->b) ->(a ->a ->b) 
+--      =  (a ->b) ->(a -> (a ->b) ) 
+
+--      τ2 = a ->b ->((a ->a) ->b)
+--      =  a ->(b ->((a ->a) ->b))
+
+--      τ3 = a ->b ->(a ->(a ->b))
+--      =  a ->(b ->(a ->(a ->b)))
+
+--      τ4 = a ->(b ->(a ->a ->b))
+--      =  a ->(b ->(a -> (a ->b)))
+-- t3 = t4
+
+
+-- 6. Supuesto que ! es un operador que se ha declarado como infijo y que asocia por la izquiera
+-- (infixl 4 !) ¿Cuáles de las siguientes expresiones son sintácticamente correctas? Usa par´entesis para comprobarlo. 
+-- Transforma e1 en una expresi´on equivalente en notaci´on prefija.
+
+--      e1 = f x y ! g x ! h y
+--  
+--      e2 = ((!) (f x y) g x) ! h y
+---     la x sobra
+--      e3 = (!) ((!) (f x y) (g x)) h y
+--      la y sobra
