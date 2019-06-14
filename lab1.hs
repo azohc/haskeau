@@ -35,4 +35,3 @@ sec2qtuple s = (y,d,h,m,r)
 
 
 
-asdf
