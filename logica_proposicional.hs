@@ -9,16 +9,22 @@ data FProp = V Var | No FProp
     | Y FProp FProp | O FProp FProp | Si FProp FProp | Sii FProp FProp deriving (Eq)
 
 instance Show FProp where
-        show (V v)      = v
-        show (No (V v)) = "!" ++ v
-        show (No f)     = "!(" ++ (show f) ++ ")"
+        show (V v)       = v
+        show (No f)      = "¬(" ++ (show f) ++ ")"        
+        show (f `Y` g)   = "("  ++ (show f) ++ " ∧ "   ++ (show g) ++ ")"
+        show (f `O` g)   = "("  ++ (show f) ++ " ∨ "   ++ (show g) ++ ")"
+        show (f `Si` g)  = "("  ++ (show f) ++ " -> "  ++ (show g) ++ ")"
+        show (f `Sii` g) = "("  ++ (show f) ++ " <-> " ++ (show g) ++ ")"
+        
 --------------------------------------------------------------------------------------------- \
 -- fórmulas
 
--- f1 = !p -> (p -> (q ^ !q))
+-- f1 = ¬p -> (p -> (q ∧ ¬q))
 f1 = Si (No (V "p")) (Si (V "p") (Y (V "q") (No (V "q"))))
--- f2 = !((p v q) v q)
-f2 = No (((V "p") `O` (V "q")) `O` (V "q"))
+-- f2 = ¬((p ∨ q) ∨ q)
+f2 = (((V "p") `O` (V "q")) `O` (V "q"))
+
+f3 = (((V "a") `O` (V "b")) `Y` ((V "a") `Y` (No (V "b"))))
 
 --------------------------------------------------------------------------------------------- \
 -- funciones
@@ -50,27 +56,28 @@ atomica f               = False
 
 -- constructura de tableaux: dada una fórmula devuelve una lista de listas de fórmulas
 -- cada lista contenida en la lista devuelta representa una rama
-tableauxiza :: FProp -> [FProp] 
+tableauxiza :: FProp -> [[FProp]] 
 
-tableauxiza (V p)       = [V p]
-tableauxiza (No (V p))  = [No (V p)]
+tableauxiza (V p)       = [[V p]]
+tableauxiza (No (V p))  = [[No (V p)]]
 
 -- formulas conjuntivas -- 
-tableauxiza (f `Y` g)        = (tableauxiza f) ++ (tableauxiza g)
-tableauxiza (No (f `O` g))   = (tableauxiza (No f)) ++ (tableauxiza (No g)) 
-tableauxiza (No (f `Si` g))  = (tableauxiza f) ++ (tableauxiza (No g)) 
-tableauxiza (f `Sii` g)      = (tableauxiza (f `Si` g)) ++ (tableauxiza (g `Si` f)) 
+tableauxiza (f `Y` g)        = ((head (tableauxiza f))++(head (tableauxiza g))):[]
+
+-- tableauxiza (No (f `O` g))   = (tableauxiza (No f)) ++ (tableauxiza (No g)) 
+-- tableauxiza (No (f `Si` g))  = (tableauxiza f) ++ (tableauxiza (No g)) 
+-- tableauxiza (f `Sii` g)      = (tableauxiza (f `Si` g)) ++ (tableauxiza (g `Si` f)) 
 
 
 -- formulas disyuntivas
--- tableauxiza (f `O` g) 
+tableauxiza (f `O` g)        = (tableauxiza f) ++ (tableauxiza g)
+tableauxiza (No (f `Y` g))   = (tableauxiza (No f)) ++ (tableauxiza (No g))
+tableauxiza (f `Si` g)       = (tableauxiza (No f)) ++ (tableauxiza g)
+tableauxiza (No (f `Sii` g)) = (tableauxiza (No (f `Si` g))) ++ (tableauxiza (No (g `Si` f)))     
 
 
 -- formulas simplificables
 tableauxiza (No (No f)) = tableauxiza f
-
-
-
 
 --------------------------------------------------------------------------------------------- \
 
