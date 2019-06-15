@@ -1,2 +1,2 @@
 # haskeau
-: intento de resurreccion
+Propositional logic: Haskell implementation of analytic tableaux method
