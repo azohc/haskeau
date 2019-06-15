@@ -10,6 +10,7 @@ data FProp = V Var | No FProp
 
 instance Show FProp where
         show (V v)       = v
+        show (No (V v))  = "¬"  ++ v   
         show (No f)      = "¬(" ++ (show f) ++ ")"        
         show (f `Y` g)   = "("  ++ (show f) ++ " ∧ "   ++ (show g) ++ ")"
         show (f `O` g)   = "("  ++ (show f) ++ " ∨ "   ++ (show g) ++ ")"
@@ -25,6 +26,14 @@ f1 = Si (No (V "p")) (Si (V "p") (Y (V "q") (No (V "q"))))
 f2 = (((V "p") `O` (V "q")) `O` (V "q"))
 
 f3 = (((V "a") `O` (V "b")) `Y` ((V "a") `Y` (No (V "b"))))
+
+f4 = (((V "p") `Y` ((V "q") `Y` (No (V "r")))) `O` (V "q"))
+
+fa = ((V "a") `Y` (V "b"))
+
+fb = (((V "a") `O` (V "c")) `Y` (V "b"))
+
+fc = ((V "a") `O` (V "b"))
 
 --------------------------------------------------------------------------------------------- \
 -- funciones
@@ -62,7 +71,7 @@ tableauxiza (V p)       = [[V p]]
 tableauxiza (No (V p))  = [[No (V p)]]
 
 -- formulas conjuntivas -- 
-tableauxiza (f `Y` g)        = ((head (tableauxiza f))++(head (tableauxiza g))):[]
+tableauxiza (f `Y` g)         = (f `Y` g)
 
 -- tableauxiza (No (f `O` g))   = (tableauxiza (No f)) ++ (tableauxiza (No g)) 
 -- tableauxiza (No (f `Si` g))  = (tableauxiza f) ++ (tableauxiza (No g)) 
@@ -70,7 +79,7 @@ tableauxiza (f `Y` g)        = ((head (tableauxiza f))++(head (tableauxiza g))):
 
 
 -- formulas disyuntivas
-tableauxiza (f `O` g)        = (tableauxiza f) ++ (tableauxiza g)
+tableauxiza (f `O` g)        = [(f `O` g):(concat (tableauxiza f))] ++ [(f `O` g):(concat (tableauxiza g))]
 tableauxiza (No (f `Y` g))   = (tableauxiza (No f)) ++ (tableauxiza (No g))
 tableauxiza (f `Si` g)       = (tableauxiza (No f)) ++ (tableauxiza g)
 tableauxiza (No (f `Sii` g)) = (tableauxiza (No (f `Si` g))) ++ (tableauxiza (No (g `Si` f)))     
