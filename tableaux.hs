@@ -160,25 +160,28 @@ rama_cerrada (Falso:xs)         -- si Falso y Cierto están en la misma rama es 
 
 --------------------------------------------------------------------------------------- \\
 -- Entrada/salida
+mensajeAyuda :: IO ()
+mensajeAyuda = do
+    putStrLn "Escribe una formula utilizando los siguientes operadores:"
+    putStrLn "- Cierto:\trepresenta la constante cierto"
+    putStrLn "- Falso:\trepresenta la constante falso"
+    putStrLn "- P v:   \tv (String) representa una variable"
+    putStrLn "- No f:  \tnegacion de la formula f"
+    putStrLn "- Y f g:\tconjuncion de las formulas f y g"
+    putStrLn "- O f g:\tdisyuncion de las formulas f y g"
 
-leeFormula :: IO (FProp)
+leeFormula :: IO(FProp)
 leeFormula = do
-    o <- getLine
-    
-    putStrLn ("Escribe una formula utilizando los siguientes operadores:")
-    putStrLn ("- Cierto:\trepresenta la constante cierto")
-    putStrLn ("- Falso:\trepresenta la constante falso")
-    putStrLn ("- P v:   \tv (String) representa una variable")
-    putStrLn ("- No f:  \tnegacion de la formula f")
-    putStrLn ("- Y f g:\tconjuncion de las formulas f y g")
-    putStrLn ("- O f g:\tdisyuncion de las formulas f y g")
-    
     input <- getLine
-    let formula = read input :: FProp
-    putStr . show $ formula
-    putStrLn " es la formula interpretada\n"
-
-    return formula
+    return (read input :: FProp)
+-- https://stackoverflow.com/questions/54057041/haskell-read-list-of-persons
+leeFormulas :: (Ord t, Num t) => t -> IO [FProp]
+leeFormulas n
+    | n > 0 = do
+        f <- leeFormula
+        fs <- leeFormulas (n - 1)
+        return (f:fs)
+    | otherwise = return []
 
 main = do
     putStrLn ""
@@ -193,40 +196,71 @@ main = do
     let opcion = read o :: Int
     case opcion of
         1 -> do 
-            putStrLn ""
-            let formulas = leeFormula:[]
-            -- leer mas formulas si se solicita
-            -- print (tableau formulas)
-            putStrLn "..." -- convertir IO FProp a FProp
+            putStrLn "Cuantas formulas vas a introducir?"
+            input <- getLine
+            let n = read input :: Int
+
+            mensajeAyuda
+            let fs = leeFormulas n
+            --putStr . show $ fs
+            --putStrLn " es el conjunto de leido"
+        
+            --print (tableau fs) -- fs :: IO [FProp]... necesita [FProp]
+            putStrLn "..." 
 
         2 -> do
-            putStrLn ""
-            let formulas = leeFormula:[]
-            -- leer mas formulas si se solicita
-            -- print (tableau_cerrado (tableau formulas))
-            putStrLn "..." -- convertir IO FProp a FProp
+            putStrLn "Cuantas formulas vas a introducir?"
+            input <- getLine
+            let n = read input :: Int
+
+            mensajeAyuda
+            let fs = leeFormulas n
+            --putStr . show $ fs
+            --putStrLn " es el conjunto de formulas leido"
+
+            --print (tableau_cerrado (tableau fs)) -- fs :: IO [FProp]... necesita [FProp]
+            putStrLn "..." 
 
         3 -> do
-            putStrLn ""
-            let formula = leeFormula
-            -- print (tautologia formula)
+            mensajeAyuda
+            let f = leeFormula
+            --putStr . show $ f
+            --putStrLn " es la formula leida"
+
+            -- print (tautologia f) -- f :: IO FProp... necesita FProp
             putStrLn "..." -- convertir IO FProp a FProp
         
         4 -> do
+            mensajeAyuda
             putStrLn ""
+            putStrLn "Introduce la formula a comprobar"
             let f = leeFormula
-            let fs = leeFormula:[]
-            -- leer mas formulas si se solicita
-            -- print (consecuencia f fs)
-            putStrLn "..." -- convertir IO FProp a FProp
+            --putStr . show $ f
+            --putStrLn " es la formula leida"
+
+            putStrLn "Cuantas formulas vas a introducir para el conjunto?"
+            input <- getLine
+            let n = read input :: Int
+
+            let fs = leeFormulas n
+            --putStr . show $ fs
+            --putStrLn " es el conjunto de formulas leido"
+
+            -- print (consecuencia f fs) -- necesita tipos sin IO, no se quitarlo
+            putStrLn "..." 
 
         5 -> do
-            putStrLn ""
+            putStrLn "Introduce la primera formula"
             let f = leeFormula
+            --putStr . show $ f
+            --putStrLn " es la formula leida"
+            putStrLn "Introduce la segunda formula"
             let g = leeFormula
-            -- leer mas formulas si se solicita
-            -- print (equivalentes f g)
-            putStrLn "..." -- convertir IO FProp a FProp
-                
+            --putStr . show $ g
+            --putStrLn " es la formula leida"
+
+            -- print (equivalentes f g) -- necesita tipos sin IO, no se quitarlo
+            putStrLn "..."
+
         _ -> putStr "error de entrada\n"
             
