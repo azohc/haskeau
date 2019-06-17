@@ -53,6 +53,8 @@ f4 = No ((P "p") `Y` ((P "p") `O` (P "r")))
 -- f5 ≡ ¬((r ∨ p) ∧ p)
 f5 = No (((P "r") `O` (P "p")) `Y` (P "p"))
  
+fa = No (Y (O (P "r") (P "p")) (P "p"))
+
 --------------------------------------------------------------------------------------- \\
 -- Funciones
 
@@ -162,14 +164,20 @@ rama_cerrada (Falso:xs)         -- si Falso y Cierto están en la misma rama es 
 -- Entrada/salida
 mensajeAyuda :: IO ()
 mensajeAyuda = do
-    putStrLn "Escribe una formula utilizando los siguientes operadores:"
-    putStrLn "- Cierto:\trepresenta la constante cierto"
+    putStrLn "\nEscribe una formula utilizando los siguientes operadores:"
+    putStrLn "\n- Cierto:\trepresenta la constante cierto"
     putStrLn "- Falso:\trepresenta la constante falso"
-    putStrLn "- P v:   \tv (String) representa una variable"
+    putStrLn "- P \"v\":   \trepresenta la variable \"v\""
     putStrLn "- No f:  \tnegacion de la formula f"
     putStrLn "- Y f g:\tconjuncion de las formulas f y g"
     putStrLn "- O f g:\tdisyuncion de las formulas f y g"
+    putStrLn "\nNo olvides los parentesis si vas a combinar operadores!"
+    putStrLn "Algunos ejemplos:"
+    putStrLn "p ∧ ¬q\t\t≡ Y (P \"p\") (No (P \"q\"))"
+    putStrLn "¬⊥ ∨ ¬(q ∨ ¬q)\t≡ O (No Falso) (No (O (P \"q\") (No (P \"q\"))))"
+    putStrLn "¬((r ∨ p) ∧ p)\t≡ No (Y (O (P \"r\") (P \"p\")) (P \"p\"))"
 
+    
 leeFormula :: IO(FProp)
 leeFormula = do
     input <- getLine
@@ -196,71 +204,80 @@ main = do
     let opcion = read o :: Int
     case opcion of
         1 -> do 
-            putStrLn "Cuantas formulas vas a introducir?"
+            putStrLn "Cuantas formulas quieres introducir?"
             input <- getLine
             let n = read input :: Int
 
             mensajeAyuda
-            let fs = leeFormulas n
-            --putStr . show $ fs
-            --putStrLn " es el conjunto de leido"
-        
-            --print (tableau fs) -- fs :: IO [FProp]... necesita [FProp]
-            putStrLn "..." 
+            putStrLn ""
+            putStrLn "Introduce las formulas del conjunto (una formula por linea)"
+            fs <- leeFormulas n
+
+            putStrLn ("\ntableaux de " ++ (show fs) ++ ":")
+            print (tableau fs) 
 
         2 -> do
-            putStrLn "Cuantas formulas vas a introducir?"
+            putStrLn "Cuantas formulas quieres introducir?"
             input <- getLine
             let n = read input :: Int
 
             mensajeAyuda
-            let fs = leeFormulas n
-            --putStr . show $ fs
-            --putStrLn " es el conjunto de formulas leido"
+            putStrLn ""
+            putStrLn "Introduce las formulas del conjunto (una formula por linea)"
+            fs <- leeFormulas n
 
-            --print (tableau_cerrado (tableau fs)) -- fs :: IO [FProp]... necesita [FProp]
-            putStrLn "..." 
+            if (tableau_cerrado fs) then
+                putStrLn ("\nel tableaux de " ++ (show fs) ++ " es cerrado")
+            else
+                putStrLn ("\nel tableaux de " ++ (show fs) ++ " no es cerrado")
 
         3 -> do
             mensajeAyuda
-            let f = leeFormula
-            --putStr . show $ f
-            --putStrLn " es la formula leida"
+            putStrLn ""
+            putStrLn "Introduce la formula a comprobar"
+            f <- leeFormula
 
-            -- print (tautologia f) -- f :: IO FProp... necesita FProp
-            putStrLn "..." -- convertir IO FProp a FProp
+            if (tautologia f) then
+                putStrLn ("\nla formula " ++ (show f) ++ " es tautologia")
+            else
+                putStrLn ("\nla formula " ++ (show f) ++ " no es tautologia")
         
         4 -> do
             mensajeAyuda
             putStrLn ""
             putStrLn "Introduce la formula a comprobar"
-            let f = leeFormula
-            --putStr . show $ f
-            --putStrLn " es la formula leida"
+            f <- leeFormula
 
-            putStrLn "Cuantas formulas vas a introducir para el conjunto?"
+
+            putStrLn "Cuantas formulas quieres introducir?"
             input <- getLine
             let n = read input :: Int
+            
+            putStrLn ""
+            putStrLn "Introduce las formulas del conjunto (una formula por linea)"
+            fs <- leeFormulas n
 
-            let fs = leeFormulas n
-            --putStr . show $ fs
-            --putStrLn " es el conjunto de formulas leido"
-
-            -- print (consecuencia f fs) -- necesita tipos sin IO, no se quitarlo
-            putStrLn "..." 
+            
+            if (consecuencia f fs) then
+                putStrLn ("\nla formula " ++ (show f) ++ " es consecuencia logica de " ++ (show fs))
+            else
+                putStrLn ("\nla formula " ++ (show f) ++ " no es consecuencia logica de " ++ (show fs))
 
         5 -> do
+            mensajeAyuda
+            putStrLn ""
             putStrLn "Introduce la primera formula"
-            let f = leeFormula
-            --putStr . show $ f
-            --putStrLn " es la formula leida"
-            putStrLn "Introduce la segunda formula"
-            let g = leeFormula
-            --putStr . show $ g
-            --putStrLn " es la formula leida"
+            f <- leeFormula
 
-            -- print (equivalentes f g) -- necesita tipos sin IO, no se quitarlo
-            putStrLn "..."
+            putStrLn "Introduce la segunda formula"
+            g <- leeFormula
+
+            
+            if (equivalentes f g) then
+                putStrLn ("\n" ++ (show f) ++ " es equivalente a " ++ (show g))
+            else
+                putStrLn ("\n" ++ (show f) ++ " no es equivalente a " ++ (show g))
+
 
         _ -> putStr "error de entrada\n"
             
